@@ -6,6 +6,7 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
+	"github.com/pressly/goose"
 )
 
 var (
@@ -14,13 +15,28 @@ var (
 
 func Connect(settings Settings) (err error) {
 
-	sqlInfo := fmt.Sprintf("host=%s, port=%s, user=$s, password=%s, dbname=%s, sslmode=disable",
-		settings.Host, settings.Port, settings.User, settings.Pass, settings.Name)
+	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		settings.Host, settings.Port, settings.Pass, settings.Name)
 
 	DB, err = sql.Open("postgres", sqlInfo)
 	if err != nil {
 		return err
 	}
-	log.Printf("Database conection was created: %s  \n", sqlInfo)
+	log.Printf("Database connection was created: %s \n", sqlInfo)
+
+	// make migrations
+	if settings.Reload {
+		log.Printf("Start reloading database \n")
+		err := goose.DownTo(DB, ".", 0)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Printf("Start migrating database \n")
+	goose.Up(DB, ".")
+	if err != nil {
+		return err
+	}
 	return nil
 }
