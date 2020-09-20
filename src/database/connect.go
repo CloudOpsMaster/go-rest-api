@@ -13,6 +13,8 @@ var (
 	DB *sql.DB
 )
 
+//var db *sql.DB
+
 func Connect(settings Settings) (err error) {
 
 	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",

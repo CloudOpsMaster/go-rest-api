@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	//"github.com/ekprog/restful_test/src/database"
-	//_ "github.com/ekprog/restful_test/src/migrations"
 )
 
 func test(w http.ResponseWriter, r *http.Request) {
@@ -212,16 +212,28 @@ func add(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	envUser := os.Getenv("USERNAME")
+	envPass := os.Getenv("PASS")
+	envHost := os.Getenv("HOST")
+	envPort := os.Getenv("PORT")
+	envName := os.Getenv("NAME")
+	envReload := os.Getenv("RELOAD")
+
 	// DATABASE
 	dbSettings := database.Settings{
-		User:   "postgres",
-		Pass:   "",
-		Host:   "localhost",
-		Port:   "5432",
-		Name:   "phone_list",
-		Reload: false,
+		User:   envUser,
+		Pass:   envPass,
+		Host:   envPass,
+		Port:   envPort,
+		Name:   envName,
+		Reload: envReload == "true",
 	}
-	err := database.Connect(dbSettings)
+	err = database.Connect(dbSettings)
 	if err != nil {
 		log.Fatal(err)
 	}
